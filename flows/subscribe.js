@@ -86,6 +86,8 @@ module.exports = async () => {
   ).then(response => response.json());
   const targetUser = users[0];
 
+  console.log(targetUser);
+
   try {
     await page.goto(instagramLoginUrl);
     await page.waitForSelector(loginFieldSelector);
