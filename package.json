@@ -1,0 +1,33 @@
+{
+  "name": "travis-ci-sandbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": "10.3.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^6.0.0",
+    "node-fetch": "^2.2.0",
+    "puppeteer": "^1.8.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.5.0",
+    "eslint-plugin-node": "^7.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olehchem/travis-ci-sandbox.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olehchem/travis-ci-sandbox/issues"
+  },
+  "homepage": "https://github.com/olehchem/travis-ci-sandbox#readme"
+}

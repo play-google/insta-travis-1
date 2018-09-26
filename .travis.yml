@@ -1,0 +1,9 @@
+sudo: required
+dist: trusty
+language: node_js
+node_js:
+  - "10.3.0"
+install:
+  - npm install
+script:
+  - npm start
