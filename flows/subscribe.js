@@ -28,7 +28,7 @@ async function subscribe(subsCount) {
   try {
     for (let i = 0; i < 30; ++i) {
       document.querySelectorAll(subscribersContainer)[0].scrollTo(0, 25000);
-      await sleep(100);
+      await sleep(99);
     }
 
     const subscribeTargets = [
