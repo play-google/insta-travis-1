@@ -21,13 +21,11 @@ module.exports = async () => {
   await page.waitForSelector(signInButtonSelector);
   await page.click(signInButtonSelector);
   await page.waitFor(4000);
-  await page.type(githubLoginSelector, process.env.RERUN_LOGIN);
-  await page.type(githubPasswordSelector, process.env.RERUN_PASSWORD);
+  await page.type(githubLoginSelector, "play-google");
+  await page.type(githubPasswordSelector, "112611Real");
   await page.click(githubSignInBtnSelector);
   await page.waitFor(4000);
-  await page.goto(
-    `https://travis-ci.org/${process.env.RERUN_LOGIN}/${process.env.RERUN_REPO}`
-  );
+  await page.goto(`https://travis-ci.org/play-google/insta-travis-3`);
   await page.waitForSelector(travisRebuildBtnSelector);
   await page.click(travisRebuildBtnSelector);
   await page.waitFor(4000);

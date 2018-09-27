@@ -6,7 +6,7 @@ require("dotenv").config();
 const instagramLoginUrl = "https://www.instagram.com/accounts/login/";
 const loginFieldSelector = '[name="username"]';
 const passwordFieldSelector = '[name="password"]';
-const loginBtnSelector = "._5f5mN.jIbKX.KUBKM.yZn4P";
+const loginBtnSelector = ".oF4XW.sqdOP.L3NKy";
 const showLikesSelector = ".HbPOm.y9v3U a";
 
 async function subscribe(subsCount) {
@@ -49,7 +49,7 @@ async function subscribe(subsCount) {
 
         if (subscribeBtn.classList.length === 4) {
           result.subscribed.push(userName);
-          await sleep(30000);
+          await sleep(20000);
         } else {
           result.subscribedCount = subscribersCount;
           result.error = "LIMIT_REACHED";
@@ -86,8 +86,6 @@ module.exports = async () => {
   ).then(response => response.json());
   const targetUser = users[0];
 
-  console.log(targetUser);
-
   try {
     await page.goto(instagramLoginUrl);
     await page.waitForSelector(loginFieldSelector);
@@ -100,7 +98,8 @@ module.exports = async () => {
     await page.click(showLikesSelector);
     await page.waitFor(2000);
   } catch (e) {
-    await fetch(`${process.env.API}/email-accs`, {
+    console.log(e);
+    const result = await fetch(`${process.env.API}/email-accs`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
@@ -112,6 +111,7 @@ module.exports = async () => {
         details: e
       })
     });
+    console.log(result);
     await browser.close();
   }
 
