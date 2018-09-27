@@ -6,7 +6,7 @@ require("dotenv").config();
 const instagramLoginUrl = "https://www.instagram.com/accounts/login/";
 const loginFieldSelector = '[name="username"]';
 const passwordFieldSelector = '[name="password"]';
-const loginBtnSelector = ".oF4XW.sqdOsssssssP.L3NKy";
+const loginBtnSelector = ".oF4XW.sqdOP.L3NKy";
 const showLikesSelector = ".HbPOm.y9v3U a";
 
 async function subscribe(subsCount) {
