@@ -6,7 +6,7 @@ require("dotenv").config();
 const instagramLoginUrl = "https://www.instagram.com/accounts/login/";
 const loginFieldSelector = '[name="username"]';
 const passwordFieldSelector = '[name="password"]';
-const loginBtnSelector = ".oF4XW.sqdOP.L3NKy";
+const loginBtnSelector = ".oF4XW.sqdOsssssssP.L3NKy";
 const showLikesSelector = ".HbPOm.y9v3U a";
 
 async function subscribe(subsCount) {
@@ -70,6 +70,7 @@ async function subscribe(subsCount) {
     return result;
   }
 }
+
 module.exports = async () => {
   const browser = await puppeteer.launch({
     headless: !process.env.HEADLESS,
@@ -84,6 +85,7 @@ module.exports = async () => {
   const users = await fetch(
     `${process.env.API}/insta-accs?id=${process.env.USER_ID}`
   ).then(response => response.json());
+
   const targetUser = users[0];
 
   try {
@@ -99,7 +101,8 @@ module.exports = async () => {
     await page.waitFor(2000);
   } catch (e) {
     console.log(e);
-    const result = await fetch(`${process.env.API}/email-accs`, {
+
+    await fetch(`${process.env.API}/email-accs`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
@@ -108,10 +111,11 @@ module.exports = async () => {
         sessionTime: new Date().toISOString(),
         targetUser: targetUser.login,
         error: "USER_BANNED",
-        details: e
+        details: e.toString(),
+        see: "SEEE"
       })
     });
-    console.log(result);
+
     await browser.close();
   }
 
