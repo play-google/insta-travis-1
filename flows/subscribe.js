@@ -49,7 +49,7 @@ async function subscribe(subsCount) {
 
         if (subscribeBtn.classList.length === 4) {
           result.subscribed.push(userName);
-          await sleep(20000);
+          await sleep(25000);
         } else {
           result.subscribedCount = subscribersCount;
           result.error = "LIMIT_REACHED";
