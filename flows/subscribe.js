@@ -66,7 +66,7 @@ async function subscribe(subsCount) {
 
     return result;
   } catch (e) {
-    result.error = e;
+    result.error = JSON.stringify(e);
     return result;
   }
 }
@@ -102,13 +102,12 @@ module.exports = async () => {
   } catch (e) {
     console.log(e);
 
-    await fetch(`${process.env.API}/email-accs`, {
+    await fetch(`${process.env.API}/bots-subs-stat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
       },
       body: JSON.stringify({
-        sessionTime: new Date().toISOString(),
         targetUser: targetUser.login,
         error: "USER_BANNED",
         details: e.toString(),
@@ -121,13 +120,12 @@ module.exports = async () => {
 
   const result = await page.evaluate(subscribe, targetUser.subcribe);
 
-  await fetch(`${process.env.API}/email-accs`, {
+  await fetch(`${process.env.API}/bots-subs-stat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=utf-8"
     },
     body: JSON.stringify({
-      sessionTime: new Date().toISOString(),
       targetUser: targetUser.login,
       ...result
     })
