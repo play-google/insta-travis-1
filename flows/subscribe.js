@@ -79,7 +79,7 @@ module.exports = async () => {
 
   const page = await browser.newPage();
 
-  await page.goto(process.env.API);
+  await page.goto(`${process.env.API}/insta-accs`);
   await page.waitFor(5000);
 
   const users = await fetch(
