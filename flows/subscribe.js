@@ -67,7 +67,7 @@ async function subscribe(subsCount) {
 
     return result;
   } catch (e) {
-    result.error = JSON.stringify(e);
+    result.error = e.toString();
     return result;
   }
 }
