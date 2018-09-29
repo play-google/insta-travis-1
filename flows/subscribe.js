@@ -83,13 +83,18 @@ module.exports = async () => {
   await page.goto(`${process.env.API}/insta-accs`);
   await page.waitFor(5000);
 
-  const users = await axios.get(
-    `${process.env.API}/insta-accs?id=${process.env.USER_ID}`
-  );
+  const users = await axios
+    .get(`${process.env.API}/insta-accs?id=${process.env.USER_ID}`)
+    .then(response => response.data);
 
   const targetUser = users[0];
 
   if (targetUser.banned) {
+    await browser.close();
+  }
+
+  if (targetUser.snooze) {
+    await axios.get(`${process.env.API}/insta-accs/${targetUser._id}/unsnooze`);
     await browser.close();
   }
 
@@ -126,16 +131,13 @@ module.exports = async () => {
   const result = await page.evaluate(subscribe, targetUser.subcribe);
 
   if (result.error) {
-    /*  await axios.post(`${process.env.API}/bots-subs-stat`, {
-      targetUser: targetUser.login,
-      ...result
-    }); */
-  } else {
-    await axios.post(`${process.env.API}/bots-subs-stat`, {
-      targetUser: targetUser.login,
-      ...result
-    });
+    await axios.get(`${process.env.API}/insta-accs/${targetUser._id}/snooze`);
   }
+
+  await axios.post(`${process.env.API}/bots-subs-stat`, {
+    targetUser: targetUser.login,
+    ...result
+  });
 
   await browser.close();
 };
