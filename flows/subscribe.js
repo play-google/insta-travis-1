@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-const fetch = require("node-fetch");
+const axios = require("axios");
 
 require("dotenv").config();
 
@@ -8,6 +8,7 @@ const loginFieldSelector = '[name="username"]';
 const passwordFieldSelector = '[name="password"]';
 const loginBtnSelector = ".oF4XW.sqdOP.L3NKy";
 const showLikesSelector = ".HbPOm.y9v3U a";
+const bannedNotifSelector = "#slfErrorAlert";
 
 async function subscribe(subsCount) {
   let subscribeTargetSelector = ".wo9IH";
@@ -82,11 +83,15 @@ module.exports = async () => {
   await page.goto(`${process.env.API}/insta-accs`);
   await page.waitFor(5000);
 
-  const users = await fetch(
+  const users = await axios.get(
     `${process.env.API}/insta-accs?id=${process.env.USER_ID}`
-  ).then(response => response.json());
+  );
 
   const targetUser = users[0];
+
+  if (targetUser.banned) {
+    await browser.close();
+  }
 
   try {
     await page.goto(instagramLoginUrl);
@@ -94,7 +99,14 @@ module.exports = async () => {
     await page.type(loginFieldSelector, targetUser.login);
     await page.type(passwordFieldSelector, targetUser.password);
     await page.click(loginBtnSelector);
-    await page.waitFor(2000);
+    await page.waitFor(4000);
+
+    if (await page.$(bannedNotifSelector)) {
+      await page.goto(`${process.env.API}/insta-accs`);
+      await axios.get(`${process.env.API}/insta-accs/${targetUser._id}/ban`);
+      await browser.close();
+    }
+
     await page.goto(targetUser.post);
     await page.waitFor(2000);
     await page.click(showLikesSelector);
@@ -102,17 +114,10 @@ module.exports = async () => {
   } catch (e) {
     console.log(e);
 
-    await fetch(`${process.env.API}/bots-subs-stat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      },
-      body: JSON.stringify({
-        targetUser: targetUser.login,
-        error: "USER_BANNED",
-        details: e.toString(),
-        see: "SEEE"
-      })
+    await axios.post(`${process.env.API}/bots-subs-stat`, {
+      targetUser: targetUser.login,
+      error: "USER_BANNED",
+      details: e.toString()
     });
 
     await browser.close();
@@ -120,16 +125,17 @@ module.exports = async () => {
 
   const result = await page.evaluate(subscribe, targetUser.subcribe);
 
-  await fetch(`${process.env.API}/bots-subs-stat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8"
-    },
-    body: JSON.stringify({
+  if (result.error) {
+    /*  await axios.post(`${process.env.API}/bots-subs-stat`, {
       targetUser: targetUser.login,
       ...result
-    })
-  });
+    }); */
+  } else {
+    await axios.post(`${process.env.API}/bots-subs-stat`, {
+      targetUser: targetUser.login,
+      ...result
+    });
+  }
 
   await browser.close();
 };
