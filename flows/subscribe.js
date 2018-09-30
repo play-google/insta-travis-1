@@ -137,8 +137,8 @@ module.exports = async () => {
     await axios.post(
       `${process.env.API}/insta-accs/${targetUser._id}/followers`,
       {
-        followers: followers.replace(/ /g, ""),
-        following: following.replace(/ /g, "")
+        followers,
+        following
       }
     );
 
