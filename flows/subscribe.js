@@ -10,6 +10,8 @@ const loginBtnSelector = ".oF4XW.sqdOP.L3NKy";
 const showLikesSelector = ".HbPOm.y9v3U a";
 const bannedNotifSelector = "#slfErrorAlert";
 const addPhoneNumberSelector = ".ZpgjG._1I5YO .AjK3K";
+const followersCountSelector = ".Y8-fY:nth-of-type(2) .g47SY";
+const followingCountSelector = ".Y8-fY:nth-of-type(3) .g47SY";
 
 async function subscribe(subsCount) {
   let subscribeTargetSelector = ".wo9IH";
@@ -121,6 +123,24 @@ module.exports = async () => {
 
       await browser.close();
     }
+
+    await page.goto(`https://www.instagram.com/${targetUser.login}/`);
+    await page.waitForSelector(followersCountSelector);
+
+    const followers = await page.evaluate(
+      () => document.querySelector(".Y8-fY:nth-of-type(2) .g47SY").textContent
+    );
+    const following = await page.evaluate(
+      () => document.querySelector(".Y8-fY:nth-of-type(3) .g47SY").textContent
+    );
+
+    await axios.post(
+      `${process.env.API}/insta-accs/${targetUser._id}/followers`,
+      {
+        followers,
+        following
+      }
+    );
 
     await page.goto(targetUser.post);
     await page.waitFor(2000);
