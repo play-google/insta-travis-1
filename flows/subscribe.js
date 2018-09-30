@@ -9,6 +9,7 @@ const passwordFieldSelector = '[name="password"]';
 const loginBtnSelector = ".oF4XW.sqdOP.L3NKy";
 const showLikesSelector = ".HbPOm.y9v3U a";
 const bannedNotifSelector = "#slfErrorAlert";
+const addPhoneNumberSelector = ".ZpgjG._1I5YO .AjK3K";
 
 async function subscribe(subsCount) {
   let subscribeTargetSelector = ".wo9IH";
@@ -112,6 +113,16 @@ module.exports = async () => {
       await browser.close();
     }
 
+    if (await page.$(addPhoneNumberSelector)) {
+      await axios.post(`${process.env.API}/bots-subs-stat`, {
+        targetUser: targetUser.login,
+        error: "ADD_PHONE_NUMBER"
+      });
+
+      await browser.close();
+    }
+
+    await page.waitFor(20000000);
     await page.goto(targetUser.post);
     await page.waitFor(2000);
     await page.click(showLikesSelector);
