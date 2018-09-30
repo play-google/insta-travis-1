@@ -122,7 +122,6 @@ module.exports = async () => {
       await browser.close();
     }
 
-    await page.waitFor(20000000);
     await page.goto(targetUser.post);
     await page.waitFor(2000);
     await page.click(showLikesSelector);
