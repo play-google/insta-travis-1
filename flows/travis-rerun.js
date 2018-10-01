@@ -21,14 +21,17 @@ module.exports = async () => {
   await page.waitForSelector(signInButtonSelector);
   await page.click(signInButtonSelector);
   await page.waitFor(4000);
-  await page.type(githubLoginSelector, "play-google");
-  await page.type(githubPasswordSelector, "112611Real");
+  await page.type(githubLoginSelector, "****");
+  await page.type(githubPasswordSelector, "****");
   await page.click(githubSignInBtnSelector);
   await page.waitFor(4000);
-  await page.goto(`https://travis-ci.org/play-google/insta-travis-3`);
-  await page.waitForSelector(travisRebuildBtnSelector);
-  await page.click(travisRebuildBtnSelector);
-  await page.waitFor(4000);
+
+  for (let i = 1; i <= 6; ++i) {
+    await page.goto(`https://travis-ci.org/***${i}`);
+    await page.waitForSelector(travisRebuildBtnSelector);
+    await page.click(travisRebuildBtnSelector);
+    await page.waitFor(4000);
+  }
 
   await browser.close();
 };
