@@ -19,6 +19,7 @@ async function subscribe(subsCount) {
   const subscribeBtnSelector = ".follow-text";
   const userNameSelector = ".u-linkComplex-target";
   const followingClass = "following";
+  const protectedClass = "protected";
 
   let result = {
     subscribed: [],
@@ -46,7 +47,10 @@ async function subscribe(subsCount) {
         subscribeBtnSelector
       );
 
-      if (!userSubscribeContainer.classList.contains(followingClass)) {
+      if (
+        !userSubscribeContainer.classList.contains(followingClass) &&
+        !userSubscribeContainer.classList.contains(protectedClass)
+      ) {
         subscribeBtn.click();
         await sleep(2000);
         if (userSubscribeContainer.classList.contains(followingClass)) {
