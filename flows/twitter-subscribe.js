@@ -26,7 +26,7 @@ async function subscribe(subsCount) {
     error: null
   };
   try {
-    for (let i = 0; i < 30; ++i) {
+    for (let i = 0; i < 35; ++i) {
       window.scrollTo(0, 60000);
       await sleep(100);
     }
