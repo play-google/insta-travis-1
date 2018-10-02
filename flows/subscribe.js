@@ -252,9 +252,9 @@ module.exports = async () => {
 
   try {
     await page.goto(targetUser.post);
-    await page.waitFor(2000);
+    await page.waitForSelector(showLikesSelector);
     await page.click(showLikesSelector);
-    await page.waitFor(2000);
+    await page.waitFor(4000);
   } catch (e) {
     await reportError(targetUser.login, {
       type: "CANNOT_LOAD_POST_OR_SHOW_LIKES",
