@@ -278,7 +278,7 @@ module.exports = async () => {
       process.exit(1);
     }
   } else {
-    await reportError(targetUser.login, {
+    await axios.post(`${process.env.API}/bots-subs-stat`, {
       targetUser: targetUser.login,
       ...result
     });
