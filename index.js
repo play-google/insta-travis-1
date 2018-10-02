@@ -4,9 +4,9 @@ const twitterFlow = require("./flows/twitter-subscribe");
 const rerunFlow = require("./flows/travis-rerun");
 
 (async () => {
-  await twitterFlow();
-  /*   await subscribeFlow(); */
-  /*  setInterval(() => {
-    rerunFlow();
-  }, 15 * 60 * 1000); */
+  /*  await twitterFlow(); */
+  await subscribeFlow();
+  /*   setInterval(() => { */
+  /*   rerunFlow(); */
+  /*   }, 15 * 60 * 1000); */
 })();
