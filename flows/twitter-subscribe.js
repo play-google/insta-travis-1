@@ -111,7 +111,27 @@ module.exports = async () => {
 
     //If confirm phone number
 
-    //Set followers
+    await page.goto(`https://twitter.com/${targetUser.login}`);
+    await page.waitForSelector(".ProfileNav-item--followers");
+
+    const followers = await page.evaluate(
+      () =>
+        document.querySelector(".ProfileNav-item--followers .ProfileNav-value")
+          .textContent
+    );
+    const following = await page.evaluate(
+      () =>
+        document.querySelector(".ProfileNav-item--following .ProfileNav-value")
+          .textContent
+    );
+
+    await axios.post(
+      `${process.env.API}/twitter-accs/${targetUser._id}/followers`,
+      {
+        followers,
+        following
+      }
+    );
 
     await page.goto(targetUser.post);
     await page.waitFor(2000);
