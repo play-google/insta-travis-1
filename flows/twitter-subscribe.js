@@ -10,6 +10,8 @@ const passwordInputSelector = ".js-password-field";
 const loginBtnSelector =
   ".submit.EdgeButton.EdgeButton--primary.EdgeButtom--medium";
 
+const ipSelector = "#ipv4 a";
+
 async function subscribe(subsCount) {
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -105,8 +107,6 @@ module.exports = async () => {
   //If banned
 
   //If snoozed
-
-  console.log(targetUser);
 
   try {
     await page.goto(twitterLoginPageUrl);
