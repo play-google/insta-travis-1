@@ -76,6 +76,8 @@ async function subscribe(subsCount) {
   }
 }
 
+let serviceIp;
+
 module.exports = async () => {
   const browser = await puppeteer.launch({
     headless: !process.env.HEADLESS,
@@ -83,6 +85,13 @@ module.exports = async () => {
   });
 
   const page = await browser.newPage();
+
+  page.goto("https://whatismyipaddress.com/");
+  await page.waitForSelector(ipSelector);
+
+  serviceIp = await page.evaluate(
+    () => document.querySelector("#ipv4 a").innerText
+  );
 
   await page.goto(`${process.env.API}/twitter-accs`);
   await page.waitFor(5000);
@@ -146,6 +155,7 @@ module.exports = async () => {
   await axios.post(`${process.env.API}/bots-subs-stat`, {
     targetUser: targetUser.login,
     strategy: "TWITTER",
+    serviceIp,
     ...result
   });
 

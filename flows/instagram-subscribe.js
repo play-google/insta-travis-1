@@ -15,6 +15,8 @@ const followingCountSelector = ".Y8-fY:nth-of-type(3) .g47SY";
 
 const userServiceReadySelector = "#app-ready";
 
+const ipSelector = "#ipv4 a";
+
 async function subscribe(subsCount) {
   let subscribeTargetSelector = ".wo9IH";
   let targetUserNameSelector = `.FPmhX._0imsa`;
@@ -123,11 +125,14 @@ async function subscribe(subsCount) {
   return result;
 }
 
+let serviceIp;
+
 async function reportError(user, { type, details }) {
   await axios.post(`${process.env.API}/bots-subs-stat`, {
     targetUser: user,
     error: type,
-    details
+    details,
+    serviceIp
   });
 }
 
@@ -138,6 +143,20 @@ module.exports = async () => {
   });
 
   const page = await browser.newPage();
+
+  try {
+    page.goto("https://whatismyipaddress.com/");
+    await page.waitForSelector(ipSelector);
+
+    serviceIp = await page.evaluate(
+      () => document.querySelector("#ipv4 a").innerText
+    );
+  } catch (e) {
+    await reportError("CANNOT_GET_IP_ADDRESS", {
+      type: "CANNOT_GET_IP_ADDRESS",
+      details: e.toString()
+    });
+  }
 
   try {
     await page.goto(`${process.env.API}/statistic`);
@@ -167,6 +186,10 @@ module.exports = async () => {
   }
 
   if (targetUser.banned) {
+    await reportError("USER_BANNED", {
+      type: "USER_BANNED"
+    });
+
     process.exit(1);
   }
 
@@ -180,7 +203,6 @@ module.exports = async () => {
     process.exit(0);
   }
 
-  /*   try { */
   try {
     await page.goto(instagramLoginUrl);
     await page.waitForSelector(loginFieldSelector);
@@ -280,6 +302,7 @@ module.exports = async () => {
   } else {
     await axios.post(`${process.env.API}/bots-subs-stat`, {
       targetUser: targetUser.login,
+      serviceIp,
       ...result
     });
     process.exit(0);
