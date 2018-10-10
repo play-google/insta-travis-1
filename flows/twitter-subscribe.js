@@ -80,7 +80,7 @@ async function subscribe(subsCount) {
 
 let serviceIp;
 
-module.exports = async () => {
+module.exports = async user => {
   const browser = await puppeteer.launch({
     headless: !process.env.HEADLESS,
     slowMo: 50
@@ -95,15 +95,6 @@ module.exports = async () => {
     () => document.querySelector("#ipv4 a").innerText
   );
 
-  await page.goto(`${process.env.API}/twitter-accs`);
-  await page.waitFor(5000);
-
-  const users = await axios
-    .get(`${process.env.API}/twitter-accs?id=${process.env.USER_ID}`)
-    .then(response => response.data);
-
-  const targetUser = users[0];
-
   //If banned
 
   //If snoozed
@@ -111,8 +102,8 @@ module.exports = async () => {
   try {
     await page.goto(twitterLoginPageUrl);
     await page.waitForSelector(emailInputSelector);
-    await page.type(emailInputSelector, targetUser.login);
-    await page.type(passwordInputSelector, targetUser.password);
+    await page.type(emailInputSelector, user.login);
+    await page.type(passwordInputSelector, user.password);
     await page.click(loginBtnSelector);
     await page.waitFor(4000);
 
@@ -120,7 +111,7 @@ module.exports = async () => {
 
     //If confirm phone number
 
-    await page.goto(`https://twitter.com/${targetUser.login}`);
+    await page.goto(`https://twitter.com/${user.login}`);
     await page.waitForSelector(".ProfileNav-item--followers");
 
     const followers = await page.evaluate(
@@ -135,25 +126,24 @@ module.exports = async () => {
     );
 
     await axios.post(
-      `${process.env.API}/twitter-accs/${targetUser._id}/followers`,
+      `${process.env.API}/promotion-users/${user._id}/followers`,
       {
         followers,
         following
       }
     );
 
-    await page.goto(targetUser.post);
+    await page.goto(user.post);
     await page.waitFor(2000);
   } catch (e) {
     console.log(e);
   }
 
-  const result = await page.evaluate(subscribe, targetUser.subcribe);
-  console.log(result);
+  const result = await page.evaluate(subscribe, user.subcribe);
   //snooze acc
 
   await axios.post(`${process.env.API}/bots-subs-stat`, {
-    targetUser: targetUser.login,
+    targetUser: user.login,
     strategy: "TWITTER",
     serviceIp,
     ...result

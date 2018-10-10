@@ -13,8 +13,6 @@ const addPhoneNumberSelector = ".ZpgjG._1I5YO .AjK3K";
 const followersCountSelector = ".Y8-fY:nth-of-type(2) .g47SY";
 const followingCountSelector = ".Y8-fY:nth-of-type(3) .g47SY";
 
-const userServiceReadySelector = "#app-ready";
-
 const ipSelector = "#ipv4 a";
 
 async function subscribe(subsCount) {
@@ -136,7 +134,7 @@ async function reportError(user, { type, details }) {
   });
 }
 
-module.exports = async () => {
+module.exports = async user => {
   const browser = await puppeteer.launch({
     headless: !process.env.HEADLESS,
     slowMo: 50
@@ -149,162 +147,140 @@ module.exports = async () => {
     await page.waitForSelector(ipSelector);
 
     serviceIp = await page.evaluate(
-      () => document.querySelector("#ipv4 a").innerText
+      selector => document.querySelector(selector).innerText,
+      ipSelector
     );
   } catch (e) {
-    await reportError("CANNOT_GET_IP_ADDRESS", {
+    await reportError(user.login, {
       type: "CANNOT_GET_IP_ADDRESS",
       details: e.toString()
     });
   }
 
-  try {
-    await page.goto(`${process.env.API}/statistic`);
-    await page.waitFor(userServiceReadySelector);
-  } catch (e) {
-    await reportError("USER_SERVICE", {
-      type: "USER_SERVICE_IS_NOT_AVAILIABLE",
-      details: e.toString()
-    });
-    process.exit(1);
-  }
-
-  let users, targetUser;
-
-  try {
-    users = await axios
-      .get(`${process.env.API}/insta-accs?id=${process.env.USER_ID}`)
-      .then(response => response.data);
-    targetUser = users[0];
-    if (!targetUser) throw "";
-  } catch (e) {
-    await reportError("USER_SERVICE", {
-      type: "CANNOT_FETCH_USER",
-      details: e.toString()
-    });
-    process.exit(1);
-  }
-
-  if (targetUser.banned) {
-    await reportError("USER_BANNED", {
+  if (user.banned) {
+    await reportError(user.login, {
       type: "USER_BANNED"
     });
 
-    process.exit(1);
+    return 1;
   }
 
-  if (targetUser.snooze) {
-    await axios.get(`${process.env.API}/insta-accs/${targetUser._id}/unsnooze`);
-    await reportError(targetUser.login, {
+  if (user.snooze) {
+    await axios.get(`${process.env.API}/promotion-users/${user._id}/unsnooze`);
+    await reportError(user.login, {
       type: "UNSNOOZE",
-      details: `Left ${targetUser.snooze}`
+      details: `Left ${user.snooze}`
     });
 
-    process.exit(0);
+    return 0;
   }
 
   try {
     await page.goto(instagramLoginUrl);
     await page.waitForSelector(loginFieldSelector);
   } catch (e) {
-    await reportError(targetUser.login, {
+    await reportError(user.login, {
       type: "CANNOT_LOAD_INSTA_PAGE",
       details: e.toString()
     });
 
-    process.exit(1);
+    return 1;
   }
 
   try {
-    await page.type(loginFieldSelector, targetUser.login);
-    await page.type(passwordFieldSelector, targetUser.password);
+    await page.type(loginFieldSelector, user.login);
+    await page.type(passwordFieldSelector, user.password);
     await page.click(loginBtnSelector);
     await page.waitFor(4000);
   } catch (e) {
-    await reportError(targetUser.login, {
+    await reportError(user.login, {
       type: "CANNOT_ENTER_USER_CREDS",
       details: e.toString()
     });
 
-    process.exit(1);
+    return 1;
   }
 
   if (await page.$(bannedNotifSelector)) {
-    await page.goto(`${process.env.API}/insta-accs`);
-    await axios.get(`${process.env.API}/insta-accs/${targetUser._id}/ban`);
-    await reportError(targetUser.login, {
+    await page.goto(`${process.env.API}/promotion-users`);
+    await axios.get(`${process.env.API}/promotion-users/${user._id}/ban`);
+    await reportError(user.login, {
       type: "USER_BANNED"
     });
-    process.exit(1);
+
+    return 1;
   }
 
   if (await page.$(addPhoneNumberSelector)) {
-    await reportError(targetUser.login, {
+    await reportError(user.login, {
       type: "ADD_PHONE_NUMBER_MODAL"
     });
 
-    process.exit(1);
+    return 1;
   }
   try {
-    await page.goto(`https://www.instagram.com/${targetUser.login}/`);
+    await page.goto(`https://www.instagram.com/${user.login}/`);
     await page.waitForSelector(followersCountSelector);
 
     const followers = await page.evaluate(
-      () => document.querySelector(".Y8-fY:nth-of-type(2) .g47SY").textContent
+      selector => document.querySelector(selector).textContent,
+      followersCountSelector
     );
+
     const following = await page.evaluate(
-      () => document.querySelector(".Y8-fY:nth-of-type(3) .g47SY").textContent
+      selector => document.querySelector(selector).textContent,
+      followingCountSelector
     );
 
     await axios.post(
-      `${process.env.API}/insta-accs/${targetUser._id}/followers`,
+      `${process.env.API}/promotion-users/${user._id}/followers`,
       {
         followers,
         following
       }
     );
   } catch (e) {
-    await reportError(targetUser.login, {
+    await reportError(user.login, {
       type: "CANNOT_LOAD_PROFILE_INFO_AND_GET_FOLLOWES_INFO",
       details: e.toString()
     });
 
-    process.exit(1);
+    return 1;
   }
 
   try {
-    await page.goto(targetUser.post);
+    await page.goto(user.post);
     await page.waitForSelector(showLikesSelector);
     await page.click(showLikesSelector);
     await page.waitFor(4000);
   } catch (e) {
-    await reportError(targetUser.login, {
+    await reportError(user.login, {
       type: "CANNOT_LOAD_POST_OR_SHOW_LIKES",
       details: e.toString()
     });
 
-    process.exit(1);
+    return 1;
   }
 
-  const result = await page.evaluate(subscribe, targetUser.subcribe);
+  const result = await page.evaluate(subscribe, user.subcribe);
 
   if (result.type) {
-    await reportError(targetUser.login, {
-      targetUser: targetUser.login,
+    await reportError(user.login, {
+      targetUser: user.login,
       ...result
     });
     if (result.type === "LIMIT_REACHED") {
-      await axios.get(`${process.env.API}/insta-accs/${targetUser._id}/snooze`);
-      process.exit(0);
+      await axios.get(`${process.env.API}/promotion-users/${user._id}/snooze`);
+      return 0;
     } else {
-      process.exit(1);
+      return 1;
     }
   } else {
     await axios.post(`${process.env.API}/bots-subs-stat`, {
-      targetUser: targetUser.login,
+      targetUser: user.login,
       serviceIp,
       ...result
     });
-    process.exit(0);
+    return 0;
   }
 };
