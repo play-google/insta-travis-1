@@ -36,27 +36,17 @@ module.exports = async () => {
         document.querySelector(".build-header").classList.contains("failed")
     );
 
-    if (!isFailed) {
+    const isRunning = await page.evaluate(
+      () =>
+        document.querySelector(".build-header").classList.contains("created") ||
+        document.querySelector(".build-header").classList.contains("started")
+    );
+
+    if (!isRunning) {
       await page.waitForSelector(travisRebuildBtnSelector);
       await page.click(travisRebuildBtnSelector);
       await page.waitFor(4000);
     }
-  }
-
-  await page.goto(`https://travis-ci.org/play-google/twitter-acc-1`);
-
-  await page.waitForSelector(".build-header");
-
-  const isFailed = await page.evaluate(
-    () =>
-      document.querySelector(".build-header").classList.contains("errored") ||
-      document.querySelector(".build-header").classList.contains("failed")
-  );
-
-  if (!isFailed) {
-    await page.waitForSelector(travisRebuildBtnSelector);
-    await page.click(travisRebuildBtnSelector);
-    await page.waitFor(4000);
   }
 
   await browser.close();
